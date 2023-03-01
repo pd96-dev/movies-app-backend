@@ -37,12 +37,12 @@ app.get("/api/movies/:id", (req, res) => {
     .catch((e) => res.status(500).json({ message: e.message }));
 });
 app.post("/api/movies", (req, res) => {
-  const { id, title, director, year, rating, genre, poster, movie_duration } =
+  const { title, director, year, rating, genre, poster, movie_duration } =
     req.body; // form data from body
   pool
     .query(
-      "INSERT INTO movies (id,	title	,director,	year,	rating,	genre	,poster,	movie_duration) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *;",
-      [id, title, director, year, rating, genre, poster, movie_duration]
+      "INSERT INTO movies (title	,director,	year,	rating,	genre	,poster,	movie_duration) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *;",
+      [title, director, year, rating, genre, poster, movie_duration]
     )
     .then((data) => {
       console.log(data);
@@ -53,7 +53,7 @@ app.post("/api/movies", (req, res) => {
 
 app.put("/api/movies/:id", (req, res) => {
   const id = req.params.id;
-  const { title, director, year, rating, genre, poster, movie_duration } =
+  const {title, director, year, rating, genre, poster, movie_duration } =
     req.body; // form data from body
   pool
     .query(
