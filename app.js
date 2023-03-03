@@ -14,6 +14,25 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send("<h1>MOVIE APP</h1>");
 });
+
+app.get("/api/search/:keyword", (req, res) => {
+  const keyword = req.params.keyword;
+
+  pool
+    .query(
+      "SELECT * FROM movies WHERE lower(title) LIKE lower('%' || $1 || '%') OR lower(genre) LIKE lower('%' || $1 || '%');",
+      [keyword]
+    )
+    .then((data) => {
+      //   console.log(data);
+      if (data.rowCount === 0) {
+        res.status(404).json({ message: "movies not found" });
+      }
+      res.json(data.rows);
+    })
+    .catch((e) => res.status(500).json({ message: e.message }));
+});
+
 app.get("/api/movies", (req, res) => {
   pool
     .query("SELECT * FROM movies;")
@@ -23,6 +42,7 @@ app.get("/api/movies", (req, res) => {
     })
     .catch((e) => res.status(500).json({ message: e.message }));
 });
+
 app.get("/api/movies/:id", (req, res) => {
   const id = req.params.id;
   pool
@@ -37,12 +57,12 @@ app.get("/api/movies/:id", (req, res) => {
     .catch((e) => res.status(500).json({ message: e.message }));
 });
 app.post("/api/movies", (req, res) => {
-  const { id, title, director, year, rating, genre, poster, movie_duration } =
+  const { title, director, year, rating, genre, poster, movie_duration } =
     req.body; // form data from body
   pool
     .query(
-      "INSERT INTO movies (id,	title	,director,	year,	rating,	genre	,poster,	movie_duration) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *;",
-      [id, title, director, year, rating, genre, poster, movie_duration]
+      "INSERT INTO movies (title	,director,	year,	rating,	genre	,poster,	movie_duration) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *;",
+      [title, director, year, rating, genre, poster, movie_duration]
     )
     .then((data) => {
       console.log(data);
